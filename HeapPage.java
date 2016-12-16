@@ -35,6 +35,8 @@ public class HeapPage implements Page {
 	 * The previous image of this {@code HeapPage}.
 	 */
 	byte[] oldData;
+	TransactionId tid;
+	boolean isDirty;
 
 	/**
 	 * Creates a {@code HeapPage} from a byte array storing data read from disk. This byte array contains (1) a 4-byte
@@ -88,7 +90,7 @@ public class HeapPage implements Page {
 
 	      @Override
 	      public boolean hasNext() {
-	    	  if(currentIndex < maxIndex)
+	    	  if((currentIndex < maxIndex) && (tupleLocation(currentIndex)!=0))
 	    		  return true;
 	    	  else
 	    		  return false;
@@ -125,11 +127,20 @@ public class HeapPage implements Page {
 	 *             if the {@code Tuple} is not on this {@code HeapPage}, or the {@code Tuple} slot is already empty.
 	 * @param t
 	 *            the {@code Tuple} to delete
+	 * @author Sayali Thorat           
 	 */
 	public void deleteTuple(Tuple t) throws DbException {
-		// some code goes here
-		// not necessary for assignment1
-		throw new UnsupportedOperationException("Implement this");
+		int id = t.getRecordId().tupleno();
+		PageId pageId = t.getRecordId().getPageId();
+		int location = tupleLocation(id);
+		if(pageId != pid){
+			throw new DbException("Page ID does not match");
+		}
+		Tuple val = getTuple(id);
+		if (readInt(data, location) == 0)
+			throw new DbException("Tuple is deleted");	
+		
+		saveTupleLocation(id, location);
 	}
 
 	/**
@@ -149,20 +160,30 @@ public class HeapPage implements Page {
 
 	/**
 	 * Marks this {@code HeapPage} as dirty/not dirty and record that transaction that did the dirtying
+	 * 
+	 * @author Sayali Thorat
 	 */
 	public void markDirty(boolean dirty, TransactionId tid) {
 		// some code goes here
 		// not necessary for assignment1
-		throw new UnsupportedOperationException("Implement this");
+		this.isDirty = dirty;
+		this.tid = tid;
+		//throw new UnsupportedOperationException("Implement this");
 	}
 
 	/**
 	 * Returns the tid of the transaction that last dirtied this page, or null if the page is not dirty
+	 * 
+	 * @author Sayali Thorat
 	 */
 	public TransactionId isDirty() {
 		// some code goes here
 		// Not necessary for assignment1
-		throw new UnsupportedOperationException("Implement this");
+		//throw new UnsupportedOperationException("Implement this");
+		if(isDirty)
+			return tid;
+		else
+			return null;
 	}
 
 	/**
@@ -221,7 +242,7 @@ public class HeapPage implements Page {
 	 * @param location
 	 *            a location in the byte array.
 	 * @param value
-	 *            the value to write.
+	 *            the value to write.         
 	 */
 	protected void writeInt(byte[] data, int location, int value) {
 		data[location] = (byte) (value >>> 24);
@@ -341,12 +362,15 @@ public class HeapPage implements Page {
 	 * @param entryID
 	 *            the ID of the entry at which the tuple is stored.
 	 * @param location
-	 *            the location of the tuple.
+	 *            the location of the tuple.           
 	 */
 	protected void saveTupleLocation(int entryID, int location) {
-		// some code goes here
-		// not necessary for assignment1
-		throw new UnsupportedOperationException("Implement this");
+		Tuple tuple = getTuple(entryID);
+		int headCount = readInt(data, 0);
+		System.out.println(headCount);
+		writeInt(data, location, 0);
+		System.out.println(readInt(data, location));
+		writeInt(data, 0, headCount-1);
 	}
 
 	/**

@@ -58,7 +58,7 @@ public class Predicate {
      * @return true if the comparison is true, false otherwise.
      */
     public boolean filter(Tuple t) {
-    	Field f = t.getField (field);
+    	Field f = t.getField(field);
     	if (f != null)
     		return f.compare(op, operand);
         return false;

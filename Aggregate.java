@@ -2,12 +2,22 @@ package simpledb;
 
 import java.util.*;
 
+import simpledb.Aggregator.Op;
+
 /**
  * An {@code Aggregate} operator computes an aggregate value (e.g., sum, avg, max, min) over a single column, grouped by a
  * single column.
  */
 public class Aggregate extends AbstractDbIterator {
 
+	DbIterator child;
+	Aggregator agg;
+	int afield;
+	Op aop;
+	int gfield;
+	
+	
+	
 	/**
 	 * Constructs an {@code Aggregate}.
 	 *
@@ -25,7 +35,27 @@ public class Aggregate extends AbstractDbIterator {
 	 *            the {@code Aggregator} operator to use
 	 */
 	public Aggregate(DbIterator child, int afield, int gfield, Aggregator.Op aop) {
-		// some code goes here
+		
+		Type gbfieldtype;
+		this.child = child;
+		this.gfield = gfield;
+		
+		if(this.gfield == Aggregator.NO_GROUPING){
+			gbfieldtype = null;
+		}else{
+			gbfieldtype = child.getTupleDesc().getType(gfield);
+		}
+		
+		Type getType = child.getTupleDesc().getType(afield);
+		
+		
+		if(getType == Type.INT_TYPE){
+			this.agg = new IntAggregator(gfield , gbfieldtype, afield,aop);
+		}else{
+			this.agg = new StringAggregator(gfield , gbfieldtype, afield,aop);
+		}
+		
+
 	}
 
 	public static String aggName(Aggregator.Op aop) {
@@ -46,6 +76,12 @@ public class Aggregate extends AbstractDbIterator {
 
 	public void open() throws NoSuchElementException, DbException, TransactionAbortedException {
 		// some code goes here
+		child.open();
+		while(child.hasNext()){
+			agg.merge(child.next());
+		}
+		
+		child.close();
 	}
 
 	/**
@@ -56,11 +92,21 @@ public class Aggregate extends AbstractDbIterator {
 	 */
 	protected Tuple readNext() throws TransactionAbortedException, DbException {
 		// some code goes here
+		try{
+		if(this.child.hasNext()){
+			return this.child.next();
+		}else{
+			return null;
+		}
+		}catch(Exception exp){
+			System.out.println("");
+		}
 		return null;
 	}
 
 	public void rewind() throws DbException, TransactionAbortedException {
 		// some code goes here
+		this.child.rewind();
 	}
 
 	/**
@@ -74,10 +120,13 @@ public class Aggregate extends AbstractDbIterator {
 	 */
 	public TupleDesc getTupleDesc() {
 		// some code goes here
-		return null;
+		
+		return agg.iterator().getTupleDesc();
+		
 	}
 
 	public void close() {
 		// some code goes here
+		this.child.close();
 	}
 }

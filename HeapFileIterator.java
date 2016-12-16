@@ -1,6 +1,5 @@
 package simpledb;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -59,9 +58,8 @@ public class HeapFileIterator implements DbFileIterator {
 		if(!isOpen)
 			throw  new NoSuchElementException();
 		Tuple temp = t;
-		if(hasNext() && t!=null){
-			t = getNextTuple();
-				
+		if(t!=null && hasNext()){
+			t = getNextTuple();		
 		}
 		return temp;
 	}
@@ -76,7 +74,5 @@ public class HeapFileIterator implements DbFileIterator {
 	public void close() {
 		isOpen = false;
 		
-	}
-
-	
+	}	
 }

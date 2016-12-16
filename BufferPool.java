@@ -66,7 +66,8 @@ public class BufferPool {
 		}else{
 			DbFile dbFile = Database.getCatalog().getDbFile(pid.getTableId());
 			page = dbFile.readPage(pid);
-			pages.put(pid, page);
+			if(pages.size() < numPages)
+				pages.put(pid, page);
 		}
 		return page;
         //throw new UnsupportedOperationException("Implement this");
@@ -149,20 +150,26 @@ public class BufferPool {
 	 *            the transaction adding the tuple.
 	 * @param t
 	 *            the tuple to add
+	 *            
+	 * @author Sayali Thorat 
 	 */
 	public void deleteTuple(TransactionId tid, Tuple t) throws DbException, TransactionAbortedException {
-		// some code goes here
-		// not necessary for assignment1
+		PageId pid = t.getRecordId().getPageId();
+		HeapPage page = (HeapPage)getPage(tid, pid, Permissions.READ_WRITE);
+		page.deleteTuple(t);
+		page.markDirty(true, tid); //mark as deleted
 	}
 
 	/**
 	 * Flush all dirty pages to disk. NB: Be careful using this routine -- it writes dirty data to disk so will break
 	 * simpledb if running in NO STEAL mode.
+	 * 
+	 * @author Sayali Thorat
 	 */
 	public synchronized void flushAllPages() throws IOException {
-		// some code goes here
-		// not necessary for assignment1
-
+		for(int i=0; i<pages.size(); i++){
+			flushPage(pages.get(i).getId());
+		}
 	}
 
 	/**
@@ -170,8 +177,7 @@ public class BufferPool {
 	 * doesn't keep a rolled back page in its cache.
 	 */
 	public synchronized void discardPage(PageId pid) {
-		// some code goes here
-		// only necessary for assignment5
+		
 	}
 
 	/**
@@ -179,26 +185,45 @@ public class BufferPool {
 	 * 
 	 * @param pid
 	 *            an ID indicating the page to flush
+	 *            
+	 * @author Sayali Thorat            
 	 */
 	private synchronized void flushPage(PageId pid) throws IOException {
-		// some code goes here
-		// not necessary for assignment1
+		int tableid = pid.getTableId();
+		DbFile file = Database.getCatalog().getDbFile(tableid);
+		Page page = pages.get(pid);
+		if(page.isDirty()!=null){
+			file.writePage(page);
+			//page.markDirty(false, page.isDirty());
+			page.markDirty(false, null);
+		}
 	}
 
 	/**
 	 * Write all pages of the specified transaction to disk.
 	 */
 	public synchronized void flushPages(TransactionId tid) throws IOException {
-		// some code goes here
-		// not necessary for assignment1|assignment2|assignment3
+		
 	}
 
 	/**
 	 * Discards a page from the buffer pool. Flushes the page to disk to ensure dirty pages are updated on disk.
+	 * 
+	 * @author Sayali Thorat
 	 */
 	private synchronized void evictPage() throws DbException {
-		// some code goes here
-		// not necessary for assignment1
+		Enumeration<PageId> pid = pages.keys();
+		if(pid.hasMoreElements()){
+			PageId pageId = pid.nextElement();
+			Page p = pages.get(pageId);
+			if(p.isDirty()!=null){
+				try {
+					flushPage(p.getId());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			pages.remove(pageId);
+		}
 	}
-
 }
