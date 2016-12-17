@@ -59,15 +59,19 @@ public class BufferPool {
 	 */
 	public Page getPage(TransactionId tid, PageId pid, Permissions perm) throws TransactionAbortedException,
 			DbException {
-		
+		//System.out.println("Pages: " + pages.size());
 		Page page = null;
 		if(pages.get(pid) != null){
 			page = pages.get(pid);
 		}else{
 			DbFile dbFile = Database.getCatalog().getDbFile(pid.getTableId());
 			page = dbFile.readPage(pid);
-			if(pages.size() < numPages)
+			if(pages.size() < numPages){
 				pages.put(pid, page);
+			}else{
+				evictPage();
+				pages.put(pid, page);
+			}
 		}
 		return page;
         //throw new UnsupportedOperationException("Implement this");
@@ -189,13 +193,11 @@ public class BufferPool {
 	 * @author Sayali Thorat            
 	 */
 	private synchronized void flushPage(PageId pid) throws IOException {
-		int tableid = pid.getTableId();
-		DbFile file = Database.getCatalog().getDbFile(tableid);
+		DbFile dbFile = Database.getCatalog().getDbFile(pid.getTableId());
 		Page page = pages.get(pid);
 		if(page.isDirty()!=null){
-			file.writePage(page);
-			//page.markDirty(false, page.isDirty());
-			page.markDirty(false, null);
+			dbFile.writePage(page);
+			page.markDirty(false, page.isDirty());
 		}
 	}
 
@@ -213,6 +215,7 @@ public class BufferPool {
 	 */
 	private synchronized void evictPage() throws DbException {
 		Enumeration<PageId> pid = pages.keys();
+		System.out.println("Lenth bafore remove: " + pages.size());
 		if(pid.hasMoreElements()){
 			PageId pageId = pid.nextElement();
 			Page p = pages.get(pageId);
@@ -224,6 +227,7 @@ public class BufferPool {
 				}
 			}
 			pages.remove(pageId);
+			System.out.println("Lenth after remove: " + pages.size());
 		}
 	}
 }

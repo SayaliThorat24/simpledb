@@ -367,9 +367,9 @@ public class HeapPage implements Page {
 	protected void saveTupleLocation(int entryID, int location) {
 		Tuple tuple = getTuple(entryID);
 		int headCount = readInt(data, 0);
-		System.out.println(headCount);
+		//System.out.println(headCount);
 		writeInt(data, location, 0);
-		System.out.println(readInt(data, location));
+		//System.out.println(readInt(data, location));
 		writeInt(data, 0, headCount-1);
 	}
 
