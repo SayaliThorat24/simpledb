@@ -11,6 +11,7 @@ import simpledb.Aggregator.Op;
 public class Aggregate extends AbstractDbIterator {
 
 	DbIterator child;
+	DbIterator agg1;
 	Aggregator agg;
 	int afield;
 	Op aop;
@@ -36,23 +37,23 @@ public class Aggregate extends AbstractDbIterator {
 	 */
 	public Aggregate(DbIterator child, int afield, int gfield, Aggregator.Op aop) {
 		
-		Type gbfieldtype;
+		Type gbfield;
 		this.child = child;
 		this.gfield = gfield;
 		
-		if(this.gfield == Aggregator.NO_GROUPING){
-			gbfieldtype = null;
+		if(gfield == Aggregator.NO_GROUPING){
+			gbfield = null;
 		}else{
-			gbfieldtype = child.getTupleDesc().getType(gfield);
+			gbfield = child.getTupleDesc().getType(gfield);
 		}
 		
 		Type getType = child.getTupleDesc().getType(afield);
 		
 		
 		if(getType == Type.INT_TYPE){
-			this.agg = new IntAggregator(gfield , gbfieldtype, afield,aop);
+			this.agg = new IntAggregator(gfield , gbfield, afield, aop);
 		}else{
-			this.agg = new StringAggregator(gfield , gbfieldtype, afield,aop);
+			this.agg = new StringAggregator(gfield , gbfield, afield, aop);
 		}
 		
 
@@ -77,11 +78,16 @@ public class Aggregate extends AbstractDbIterator {
 	public void open() throws NoSuchElementException, DbException, TransactionAbortedException {
 		// some code goes here
 		child.open();
+		
 		while(child.hasNext()){
 			agg.merge(child.next());
 		}
 		
-		child.close();
+		agg1 = agg.iterator();
+		agg1.open();
+		
+		//super.open();
+		
 	}
 
 	/**
@@ -91,6 +97,20 @@ public class Aggregate extends AbstractDbIterator {
 	 * there are no more {@code Tuple}s.
 	 */
 	protected Tuple readNext() throws TransactionAbortedException, DbException {
+		// some code goes here
+		try{
+		if(agg1.hasNext()){
+			return agg1.next();
+		}else{
+			return null;
+		}
+		}catch(Exception exp){
+			System.out.println("");
+		}
+		return null;
+	}
+
+	protected Tuple getNext() throws TransactionAbortedException, DbException {
 		// some code goes here
 		try{
 		if(this.child.hasNext()){
@@ -103,10 +123,10 @@ public class Aggregate extends AbstractDbIterator {
 		}
 		return null;
 	}
-
 	public void rewind() throws DbException, TransactionAbortedException {
 		// some code goes here
-		this.child.rewind();
+		child.rewind();
+		agg1.rewind();
 	}
 
 	/**

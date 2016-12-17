@@ -6,6 +6,12 @@ package simpledb;
  */
 public class Delete extends AbstractDbIterator {
 
+	private DbIterator child;
+	private DbIterator child1;
+	private TransactionId t;
+	private TupleDesc tdesc;
+	private boolean visited = false;
+	
     /**
      * Constructor specifying the transaction that this delete belongs to as
      * well as the child to read from.
@@ -13,24 +19,44 @@ public class Delete extends AbstractDbIterator {
      * @param child The child operator from which to read tuples for deletion
      */
     public Delete(TransactionId t, DbIterator child) {
+    	
+    	Type[] typearray;
+		String[] stringarray;
+	
+    	this.child=child;
+    	this.t=t;
+    	
+    	typearray = new Type[1];
+		typearray[0] = Type.INT_TYPE;
+		stringarray = new String[1];
+		stringarray[0] = "tuples";
+		this.tdesc = new TupleDesc(typearray, stringarray);
+		
+    	
         // some code goes here
     }
 
     public TupleDesc getTupleDesc() {
         // some code goes here
-        return null;
+        return tdesc;
     }
 
     public void open() throws DbException, TransactionAbortedException {
         // some code goes here
+    	child.open();
+    	
     }
 
     public void close() {
         // some code goes here
+    	child.close();
+    	
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
         // some code goes here
+    	child.rewind();
+    	
     }
 
     /**
@@ -43,6 +69,29 @@ public class Delete extends AbstractDbIterator {
      */
     protected Tuple readNext() throws TransactionAbortedException, DbException {
         // some code goes here
-        return null;
+    	Tuple tup = new Tuple(tdesc);
+    	try{
+    		
+			if(visited == false){
+    			return null;
+    		}else{
+    			
+    		visited =true;
+    		int i = 0;
+    		while(child.hasNext()){
+    			Tuple cld = child.next();
+    			Database.getBufferPool().deleteTuple(t, cld);
+    			i++;
+    			
+    		}
+    		
+    		Field fld = new IntField(i);
+    		tup.setField(0, fld);
+    		
+    		}	
+    	}catch(Exception exp){
+    		exp.printStackTrace();
+    	}
+        return tup;
     }
 }
