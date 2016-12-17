@@ -10,7 +10,6 @@ package simpledb;
 public class Delete extends AbstractDbIterator {
 
 	private DbIterator child;
-	private DbIterator child1;
 	private TransactionId t;
 	private TupleDesc tdesc;
 	private boolean visited = false;
@@ -25,17 +24,14 @@ public class Delete extends AbstractDbIterator {
     	
     	Type[] typearray;
 		String[] stringarray;
-	
     	this.child=child;
     	this.t=t;
-    	
     	typearray = new Type[1];
-		typearray[0] = Type.INT_TYPE;
+		typearray[0] = Type.INT_TYPE;	
 		stringarray = new String[1];
 		stringarray[0] = "tuples";
-		this.tdesc = new TupleDesc(typearray, stringarray);
 		
-    	
+		this.tdesc = new TupleDesc(typearray, stringarray);
         // some code goes here
     }
 
@@ -53,7 +49,6 @@ public class Delete extends AbstractDbIterator {
     public void close() {
         // some code goes here
     	child.close();
-    	
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
@@ -75,11 +70,11 @@ public class Delete extends AbstractDbIterator {
     	Tuple tup = new Tuple(tdesc);
     	try{
     		
-			if(visited == false){
+			if(visited == true){
     			return null;
     		}else{
     			
-    		visited =true;
+    		visited = true;
     		int i = 0;
     		while(child.hasNext()){
     			Tuple cld = child.next();
