@@ -1,3 +1,6 @@
+/**
+ * Author: Ahmed Quadri Syed, Ehtesham
+ */
 package simpledb;
 
 import java.util.ArrayList;
@@ -56,8 +59,7 @@ public class StringAggregator implements Aggregator {
 		gbfieldtype1 = gbfieldtype;
 		afield1 = afield;
 		what1 = what;
-		//System.out.println("afield");
-		//System.out.println(afield);
+
 		grpHMap = new HashMap<Field, Integer>();
 		
 		if(gbfieldtype == null){
@@ -120,15 +122,6 @@ public class StringAggregator implements Aggregator {
 	 * @return a {@code DbIterator} whose tuples are the pair ({@code groupVal}, {@code aggregateVal}) if using group,
 	 *         or a single ({@code aggregateVal}) if no grouping. The aggregateVal is determined by the type of
 	 *         aggregate specified in the constructor.
-	 
-	public DbIterator iterator() {
-		// some code goes here
-		ArrayList<Tuple> tup = new ArrayList<Tuple>();
-		TupleDesc tDesc = this.getTupleDesc;
-		
-		
-		throw new UnsupportedOperationException("implement me");
-	}
 	*/
 	
 	public DbIterator iterator() throws UnsupportedOperationException {
@@ -167,12 +160,7 @@ public class StringAggregator implements Aggregator {
 			tDesc = new TupleDesc(typearray, stringarray);
 			
 
-			for(String name:tdesc.names ){
-				System.out.println(name);
-			}
-			for(Type name:tDesc.types ){
-				System.out.println(name);
-			}
+			
 			for (Field fld : grpHMap.keySet()){
 				int grpno = grpHMap.get(fld);
 				Tuple tup = new Tuple(tDesc);
@@ -181,13 +169,8 @@ public class StringAggregator implements Aggregator {
 				itr.add(tup);
 			}
 		}
-		System.out.println("tdesc.names");
-		for(String name:tdesc.names ){
-			System.out.println(name);
-		}
-		for(Type name:tdesc.types ){
-			System.out.println(name);
-		}
+		
+		
 		
 		
 		return new TupleIterator(tDesc, itr);

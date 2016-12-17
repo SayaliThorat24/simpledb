@@ -1,3 +1,6 @@
+/**
+ * Author: Ahmed Quadri Syed, Ehtesham
+ */
 package simpledb;  
 
 /**

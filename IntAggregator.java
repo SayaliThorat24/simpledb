@@ -1,3 +1,6 @@
+/**
+ * Author: Ahmed Quadri Syed, Ehtesham
+ */
 package simpledb;
 
 import java.util.ArrayList;
@@ -89,14 +92,7 @@ public class IntAggregator implements Aggregator {
 		int Val;
 		Field fld = tupNew.getField(0);
 		gbval = fld;
-		//gbval = tup.getField(gbfield);
-		/*
-		if(NO_GROUPING == -1){
-			gbval = new IntField(Aggregator.NO_GROUPING);
-		}else{
-			gbval = tup.getField(gbfield);
-		}
-		*/
+		
 		
 		int afieldValue = ((IntField)tup.getField(afield)).getValue();
 		
@@ -123,15 +119,13 @@ public class IntAggregator implements Aggregator {
 		}else{
 			curValue = grpHMap.get(gbval);
 		}
-		System.out.println("");
-		System.out.println(gbval);
-		System.out.println(curValue);
+		
 		
 		curValue = grpHMap.get(gbval);
 		int tupCount = countgrpHMap.get(gbval);
 		if(what == Op.MIN){
 
-			System.out.println(curValue+">"+afieldValue+"hey");
+			
 			if(afieldValue < curValue){
 				curValue = afieldValue;
 				grpHMap.put(gbval, curValue);

@@ -1,3 +1,6 @@
+/**
+ * Author: Ahmed Quadri Syed, Ehtesham
+ */
 package simpledb;
 
 import java.util.*;
@@ -86,7 +89,7 @@ public class Aggregate extends AbstractDbIterator {
 		agg1 = agg.iterator();
 		agg1.open();
 		
-		//super.open();
+
 		
 	}
 
