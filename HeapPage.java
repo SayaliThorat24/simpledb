@@ -362,7 +362,8 @@ public class HeapPage implements Page {
 	 * @param entryID
 	 *            the ID of the entry at which the tuple is stored.
 	 * @param location
-	 *            the location of the tuple.           
+	 *            the location of the tuple. 
+	 *  @author Sayali Thorat                    
 	 */
 	protected void saveTupleLocation(int entryID, int location) {
 		Tuple tuple = getTuple(entryID);

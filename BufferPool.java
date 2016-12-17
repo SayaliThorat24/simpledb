@@ -163,7 +163,6 @@ public class BufferPool {
 		PageId pid = t.getRecordId().getPageId();
 		HeapPage page = (HeapPage)getPage(tid, pid, Permissions.READ_WRITE);
 		page.deleteTuple(t);
-		page.markDirty(true, tid); //mark as deleted
 	}
 
 	/**
